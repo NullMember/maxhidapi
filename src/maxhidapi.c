@@ -105,12 +105,20 @@ void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
             ++i;
         }
         if(device == NULL){
-            post("Error opening device");
+            t_atom result;
+            atom_setlong(&result, -1);
+            outlet_anything(x->outlet, gensym("open"), 1, &result);
         }
         else{
             x->device = device;
             x->vendor_id = vendor_id;
             x->product_id = product_id;
+            maxhidapi_set_nonblocking(x, 1);
+            t_atom result[3];
+            atom_setlong(result, 0);
+            atom_setlong(result + 1, x->vendor_id);
+            atom_setlong(result + 2, x->product_id);
+            outlet_anything(x->outlet, gensym("open"), 3, result);
         }
     }
     if(argc == 2){
@@ -118,12 +126,20 @@ void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         product_id = (unsigned short)atom_getlong(argv + 1);
         device = hid_open(vendor_id, product_id, NULL);
         if(device == NULL){
-            post("Error opening device");
+            t_atom result;
+            atom_setlong(&result, -1);
+            outlet_anything(x->outlet, gensym("open"), 1, &result);
         }
         else{
             x->device = device;
             x->vendor_id = vendor_id;
             x->product_id = product_id;
+            maxhidapi_set_nonblocking(x, 1);
+            t_atom result[3];
+            atom_setlong(result, 0);
+            atom_setlong(result + 1, x->vendor_id);
+            atom_setlong(result + 2, x->product_id);
+            outlet_anything(x->outlet, gensym("open"), 3, result);
         }
     }
     else if(argc == 3){
@@ -135,12 +151,20 @@ void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         mbstowcs_s(NULL, serial_number_w, length+1, serial_number_c, length);
         device = hid_open(vendor_id, product_id, serial_number_w);
         if(device == NULL){
-            post("Error opening device");
+            t_atom result;
+            atom_setlong(&result, -1);
+            outlet_anything(x->outlet, gensym("open"), 1, &result);
         }
         else{
             x->device = device;
             x->vendor_id = vendor_id;
             x->product_id = product_id;
+            maxhidapi_set_nonblocking(x, 1);
+            t_atom result[3];
+            atom_setlong(result, 0);
+            atom_setlong(result + 1, x->vendor_id);
+            atom_setlong(result + 2, x->product_id);
+            outlet_anything(x->outlet, gensym("open"), 3, result);
         }
     }
 }
@@ -210,15 +234,17 @@ void maxhidapi_get_product_string(t_maxhidapi * x){
     if(x->device != NULL){
         wchar_t product_string_w[64];
         int result = hid_get_product_string(x->device, product_string_w, 64);
-        char product_string_c[64];
+        char product_string_c[65];
         if(result == 0){
-            wcstombs(product_string_c, product_string_w, 64);
+            wcstombs_s(NULL, product_string_c, 65, product_string_w, 64);
             t_atom product_string_a;
             atom_setsym(&product_string_a, gensym(product_string_c));
             outlet_anything(x->outlet, gensym("get_product_string"), 1, &product_string_a);
         }
         else{
-            post("Error getting product string");
+            t_atom argv;
+            atom_setlong(&argv, result);
+            outlet_anything(x->outlet, gensym("get_product_string"), 1, &argv);
         }
     }
     else{
@@ -230,15 +256,17 @@ void maxhidapi_get_manufacturer_string(t_maxhidapi * x){
     if(x->device != NULL){
         wchar_t manufacturer_string_w[64];
         int result = hid_get_manufacturer_string(x->device, manufacturer_string_w, 64);
-        char manufacturer_string_c[64];
+        char manufacturer_string_c[65];
         if(result == 0){
-            wcstombs(manufacturer_string_c, manufacturer_string_w, 64);
+            wcstombs_s(NULL, manufacturer_string_c, 65, manufacturer_string_w, 64);
             t_atom manufacturer_string_a;
             atom_setsym(&manufacturer_string_a, gensym(manufacturer_string_c));
             outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &manufacturer_string_a);
         }
         else{
-            post("Error getting manufacturer string");
+            t_atom argv;
+            atom_setlong(&argv, result);
+            outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &argv);
         }
     }
     else{
@@ -250,15 +278,17 @@ void maxhidapi_get_serial_number_string(t_maxhidapi * x){
     if(x->device != NULL){
         wchar_t serial_number_string_w[64];
         int result = hid_get_serial_number_string(x->device, serial_number_string_w, 64);
-        char serial_number_string_c[64];
+        char serial_number_string_c[65];
         if(result == 0){
-            wcstombs(serial_number_string_c, serial_number_string_w, 64);
+            wcstombs_s(NULL, serial_number_string_c, 65, serial_number_string_w, 64);
             t_atom serial_number_string_a;
             atom_setsym(&serial_number_string_a, gensym(serial_number_string_c));
             outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &serial_number_string_a);
         }
         else{
-            post("Error getting serial number string");
+            t_atom argv;
+            atom_setlong(&argv, result);
+            outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &argv);
         }
     }
     else{
@@ -270,15 +300,17 @@ void maxhidapi_get_indexed_string(t_maxhidapi * x, long index){
     if(x->device != NULL){
         wchar_t indexed_string_w[64];
         int result = hid_get_indexed_string(x->device, index, indexed_string_w, 64);
-        char indexed_string_c[64];
+        char indexed_string_c[65];
         if(result == 0){
-            wcstombs(indexed_string_c, indexed_string_w, 64);
+            wcstombs_s(NULL, indexed_string_c, 65, indexed_string_w, 64);
             t_atom indexed_string_a;
             atom_setsym(&indexed_string_a, gensym(indexed_string_c));
             outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &indexed_string_a);
         }
         else{
-            post("Error getting indexed string");
+            t_atom argv;
+            atom_setlong(&argv, result);
+            outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &argv);
         }
     }
     else{
@@ -290,7 +322,7 @@ void maxhidapi_error(t_maxhidapi * x){
     if(x->device != NULL){
         const wchar_t * error_w = hid_error(x->device);
         int length = wcslen(error_w);
-        char error_c[length];
+        char error_c[length + 1];
         wcstombs(error_c, error_w, length);
         t_atom error_a;
         atom_setsym(&error_a, gensym(error_c));
@@ -350,7 +382,9 @@ void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
     const char * path = s->s_name;
     device = hid_open_path(path);
     if(device == NULL){
-        post("Error opening device");
+        t_atom argv;
+        atom_setlong(&argv, -1);
+        outlet_anything(x->outlet, gensym("open_path"), 1, &argv);
     }
     else{
         struct hid_device_info * cur_dev;
@@ -365,7 +399,17 @@ void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
             cur_dev = cur_dev->next;
         }
         if(x->device == NULL){
-            post("Error opening device");
+            t_atom argv;
+            atom_setlong(&argv, -1);
+            outlet_anything(x->outlet, gensym("open_path"), 1, &argv);
+        }
+        else{
+            maxhidapi_set_nonblocking(x, 1);
+            t_atom argv[3];
+            atom_setlong(argv, 0);
+            atom_setlong(argv + 1, x->vendor_id);
+            atom_setlong(argv + 2, x->product_id);
+            outlet_anything(x->outlet, gensym("open_path"), 3, argv);
         }
     }
 }
