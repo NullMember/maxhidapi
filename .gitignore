@@ -52,7 +52,7 @@ Mkfile.old
 dkms.conf
 
 # Max SDK
-libs/max/*
+libs/max/c74support
 
 # Builds
 build/*
