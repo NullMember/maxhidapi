@@ -346,6 +346,10 @@ void maxhidapi_set_nonblocking(t_maxhidapi * x, long nonblock){
 }
 
 void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
+    if(x->devices != NULL){
+        hid_free_enumeration(x->devices);
+        x->devices = NULL;
+    }
     unsigned short vendor_id = 0, product_id = 0;
     if (argc == 1){
         vendor_id = (unsigned short)atom_getlong(argv);
