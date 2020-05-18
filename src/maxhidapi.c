@@ -150,7 +150,6 @@ void maxhidapi_write(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         }
         for(i = 0; i < argc - 1; i++){
             * (buffer + i) = (unsigned char)atom_getlong(argv + 1 + i);
-            post("%d", *(buffer + i));
         }
         int result = hid_write(x->device, buffer, length);
         free(buffer);
