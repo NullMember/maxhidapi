@@ -117,9 +117,10 @@ void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         x->product_id = (unsigned short)atom_getlong(argv + 1);
         char * serial_number_c = atom_getsym(argv + 2)->s_name;
         size_t length = strlen(serial_number_c);
-        wchar_t serial_number_w[length + 1];
+        wchar_t * serial_number_w = (wchar_t *)malloc((length + 1) * sizeof(wchar_t));
         mbstowcs_s(NULL, serial_number_w, length+1, serial_number_c, length);
         x->device = hid_open(x->vendor_id, x->product_id, serial_number_w);
+        free(serial_number_w);
     }
     // if device not opened
     if(x->device == NULL){
@@ -142,9 +143,9 @@ void maxhidapi_write(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         unsigned char length = (unsigned char)atom_getlong(argv);
         unsigned char * buffer = (unsigned char *)calloc(length, sizeof(unsigned char));
         if(buffer == NULL){
-            t_atom status;
-            atom_setlong(&status, -2);
-            outlet_anything(x->outlet, gensym("write"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, -2);
+            outlet_anything(x->outlet, gensym("write"), 1, &respond);
             return;
         }
         for(i = 0; i < argc - 1; i++){
@@ -153,9 +154,9 @@ void maxhidapi_write(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         }
         int result = hid_write(x->device, buffer, length);
         free(buffer);
-        t_atom status;
-        atom_setlong(&status, result);
-        outlet_anything(x->outlet, gensym("write"), 1, &status);
+        t_atom respond;
+        atom_setlong(&respond, result);
+        outlet_anything(x->outlet, gensym("write"), 1, &respond);
     }
     else{
         post("Not connected");
@@ -176,14 +177,14 @@ void maxhidapi_read(t_maxhidapi * x, long length, long report_id){
                 atom_setlong(read_buffer + i, *(buffer + i));
             }
             outlet_anything(x->outlet, gensym("read"), result, read_buffer);
-            free(buffer);
             free(read_buffer);
         }
         else{
-            t_atom status;
-            atom_setlong(&status, result);
-            outlet_anything(x->outlet, gensym("read"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("read"), 1, &respond);
         }
+        free(buffer);
     }
     else{
         post("Not connected");
@@ -196,28 +197,31 @@ void maxhidapi_close(t_maxhidapi * x){
         x->device = NULL;
         x->vendor_id = 0;
         x->product_id = 0;
-        t_atom status;
-        atom_setlong(&status, 0);
-        outlet_anything(x->outlet, gensym("close"), 1, &status);
+        t_atom respond;
+        atom_setlong(&respond, 0);
+        outlet_anything(x->outlet, gensym("close"), 1, &respond);
     }
 }
 
 void maxhidapi_get_product_string(t_maxhidapi * x){
     if(x->device != NULL){
-        wchar_t product_string_w[64];
-        int result = hid_get_product_string(x->device, product_string_w, 64);
-        char product_string_c[65];
+        wchar_t * product_string_w = (wchar_t *)malloc(256 * sizeof(wchar_t));
+        int result = hid_get_product_string(x->device, product_string_w, 256);
+        size_t length = wcslen(product_string_w);
+        char * product_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, product_string_c, 65, product_string_w, 64);
+            wcstombs_s(NULL, product_string_c, length + 1, product_string_w, length);
             t_atom product_string_a;
             atom_setsym(&product_string_a, gensym(product_string_c));
             outlet_anything(x->outlet, gensym("get_product_string"), 1, &product_string_a);
         }
         else{
-            t_atom status;
-            atom_setlong(&status, result);
-            outlet_anything(x->outlet, gensym("get_product_string"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_product_string"), 1, &respond);
         }
+        free(product_string_c);
+        free(product_string_w);
     }
     else{
         post("Not connected");
@@ -226,20 +230,23 @@ void maxhidapi_get_product_string(t_maxhidapi * x){
 
 void maxhidapi_get_manufacturer_string(t_maxhidapi * x){
     if(x->device != NULL){
-        wchar_t manufacturer_string_w[64];
-        int result = hid_get_manufacturer_string(x->device, manufacturer_string_w, 64);
-        char manufacturer_string_c[65];
+        wchar_t * manufacturer_string_w = (wchar_t *)malloc(256 * sizeof(wchar_t));
+        int result = hid_get_manufacturer_string(x->device, manufacturer_string_w, 256);
+        size_t length = wcslen(manufacturer_string_w);
+        char * manufacturer_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, manufacturer_string_c, 65, manufacturer_string_w, 64);
+            wcstombs_s(NULL, manufacturer_string_c, length + 1, manufacturer_string_w, length);
             t_atom manufacturer_string_a;
             atom_setsym(&manufacturer_string_a, gensym(manufacturer_string_c));
             outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &manufacturer_string_a);
         }
         else{
-            t_atom status;
-            atom_setlong(&status, result);
-            outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &respond);
         }
+        free(manufacturer_string_c);
+        free(manufacturer_string_w);
     }
     else{
         post("Not connected");
@@ -248,20 +255,23 @@ void maxhidapi_get_manufacturer_string(t_maxhidapi * x){
 
 void maxhidapi_get_serial_number_string(t_maxhidapi * x){
     if(x->device != NULL){
-        wchar_t serial_number_string_w[64];
-        int result = hid_get_serial_number_string(x->device, serial_number_string_w, 64);
-        char serial_number_string_c[65];
+        wchar_t * serial_number_string_w = (wchar_t *)malloc(256 * sizeof(wchar_t));
+        int result = hid_get_serial_number_string(x->device, serial_number_string_w, 256);
+        size_t length = wcslen(serial_number_string_w);
+        char * serial_number_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, serial_number_string_c, 65, serial_number_string_w, 64);
+            wcstombs_s(NULL, serial_number_string_c, length + 1, serial_number_string_w, length);
             t_atom serial_number_string_a;
             atom_setsym(&serial_number_string_a, gensym(serial_number_string_c));
             outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &serial_number_string_a);
         }
         else{
-            t_atom status;
-            atom_setlong(&status, result);
-            outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &respond);
         }
+        free(serial_number_string_c);
+        free(serial_number_string_w);
     }
     else{
         post("Not connected");
@@ -270,20 +280,23 @@ void maxhidapi_get_serial_number_string(t_maxhidapi * x){
 
 void maxhidapi_get_indexed_string(t_maxhidapi * x, long index){
     if(x->device != NULL){
-        wchar_t indexed_string_w[64];
-        int result = hid_get_indexed_string(x->device, index, indexed_string_w, 64);
-        char indexed_string_c[65];
+        wchar_t * indexed_string_w = (wchar_t *)malloc(256 * sizeof(wchar_t));
+        int result = hid_get_indexed_string(x->device, index, indexed_string_w, 256);
+        size_t length = wcslen(indexed_string_w);
+        char * indexed_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, indexed_string_c, 65, indexed_string_w, 64);
+            wcstombs_s(NULL, indexed_string_c, length + 1, indexed_string_w, length);
             t_atom indexed_string_a;
             atom_setsym(&indexed_string_a, gensym(indexed_string_c));
             outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &indexed_string_a);
         }
         else{
-            t_atom status;
-            atom_setlong(&status, result);
-            outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &status);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &respond);
         }
+        free(indexed_string_c);
+        free(indexed_string_w);
     }
     else{
         post("Not connected");
@@ -294,11 +307,12 @@ void maxhidapi_error(t_maxhidapi * x){
     if(x->device != NULL){
         const wchar_t * error_w = hid_error(x->device);
         int length = wcslen(error_w);
-        char error_c[length + 1];
+        char * error_c = (char *)malloc((length + 1) * sizeof(char));
         wcstombs_s(NULL, error_c, length + 1, error_w, length);
         t_atom error_a;
         atom_setsym(&error_a, gensym(error_c));
         outlet_anything(x->outlet, gensym("error"), 1, &error_a);
+        free(error_c);
     }
     else{
         post("Not connected");
@@ -308,9 +322,9 @@ void maxhidapi_error(t_maxhidapi * x){
 void maxhidapi_set_nonblocking(t_maxhidapi * x, long nonblock){
     if(x->device != NULL){
         int result = hid_set_nonblocking(x->device, nonblock);
-        t_atom status;
-        atom_setlong(&status, result);
-        outlet_anything(x->outlet, gensym("set_nonblocking"), 1, &status);
+        t_atom respond;
+        atom_setlong(&respond, result);
+        outlet_anything(x->outlet, gensym("set_nonblocking"), 1, &respond);
     }
     else{
         post("Not connected");
@@ -334,7 +348,7 @@ void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv
     x->devices = hid_enumerate(vendor_id, product_id);
     cur_dev = x->devices;
     int i = 1;
-    t_atom respond[11];
+    t_atom * respond = (t_atom *)malloc(11 * sizeof(t_atom));
     char * str_output;
     str_output = (char *)malloc(1);
     wchar_t * str_input;
@@ -398,6 +412,7 @@ void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv
         ++i;
     }
     free(str_output);
+    free(respond);
 }
 
 void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
@@ -408,9 +423,9 @@ void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
     const char * path = s->s_name;
     device = hid_open_path(path);
     if(device == NULL){
-        t_atom argv;
-        atom_setlong(&argv, -1);
-        outlet_anything(x->outlet, gensym("open_path"), 1, &argv);
+        t_atom respond;
+        atom_setlong(&respond, -1);
+        outlet_anything(x->outlet, gensym("open_path"), 1, &respond);
     }
     else{
         struct hid_device_info * cur_dev;
@@ -425,17 +440,18 @@ void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
             cur_dev = cur_dev->next;
         }
         if(x->device == NULL){
-            t_atom argv;
-            atom_setlong(&argv, -1);
-            outlet_anything(x->outlet, gensym("open_path"), 1, &argv);
+            t_atom respond;
+            atom_setlong(&respond, -1);
+            outlet_anything(x->outlet, gensym("open_path"), 1, &respond);
         }
         else{
             maxhidapi_set_nonblocking(x, 1);
-            t_atom argv[3];
-            atom_setlong(argv, 0);
-            atom_setlong(argv + 1, x->vendor_id);
-            atom_setlong(argv + 2, x->product_id);
-            outlet_anything(x->outlet, gensym("open_path"), 3, argv);
+            t_atom * respond = (t_atom *)malloc(3 * sizeof(t_atom));
+            atom_setlong(respond, 0);
+            atom_setlong(respond + 1, x->vendor_id);
+            atom_setlong(respond + 2, x->product_id);
+            outlet_anything(x->outlet, gensym("open_path"), 3, respond);
+            free(respond);
         }
     }
 }
@@ -444,12 +460,9 @@ void maxhidapi_send_feature_report(t_maxhidapi * x, t_symbol * s, long argc, t_a
     if(x->device != NULL){
         int i;
         unsigned char length = (unsigned char)atom_getlong(argv);
-        unsigned char * buffer = NULL;
-        while(buffer == NULL){
-            unsigned char * buffer = (unsigned char *)calloc(length, sizeof(unsigned char));
-        }
+        unsigned char * buffer = (unsigned char *)calloc(length, sizeof(unsigned char));
         for(i = 0; i < argc - 1; i++){
-            buffer[i] = (unsigned char)atom_getlong(argv + 1 + i);
+            *(buffer + i) = (unsigned char)atom_getlong(argv + 1 + i);
         }
         int result = hid_send_feature_report(x->device, buffer, length);
         free(buffer);
@@ -464,22 +477,24 @@ void maxhidapi_send_feature_report(t_maxhidapi * x, t_symbol * s, long argc, t_a
 
 void maxhidapi_get_feature_report(t_maxhidapi * x, long length, long report_id){
     if(x->device != NULL){
-        unsigned char buffer[length];
-        buffer[0] = report_id;
+        unsigned char * buffer = (unsigned char *)malloc(length * sizeof(unsigned char));
+        *(buffer) = report_id;
         int result = hid_get_feature_report(x->device, buffer, length);
         if(result >= 0){
-            t_atom argv[result];
+            t_atom * respond = (t_atom *)malloc(result * sizeof(t_atom));
             int i;
             for(i = 0; i < result; i++){
-                atom_setlong(argv + i, buffer[i]);
+                atom_setlong(respond + i, *(buffer + i));
             }
-            outlet_anything(x->outlet, gensym("get_feature_report"), result, argv);
+            outlet_anything(x->outlet, gensym("get_feature_report"), result, respond);
+            free(respond);
         }
         else{
-            t_atom argv;
-            atom_setlong(&argv, result);
-            outlet_anything(x->outlet, gensym("get_feature_report"), 1, &argv);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_feature_report"), 1, &respond);
         }
+        free(buffer);
     }
     else{
         post("Not connected");
@@ -488,22 +503,24 @@ void maxhidapi_get_feature_report(t_maxhidapi * x, long length, long report_id){
 
 void maxhidapi_get_input_report(t_maxhidapi * x, long length, long report_id){
     if(x->device != NULL){
-        unsigned char buffer[length];
-        buffer[0] = report_id;
+        unsigned char * buffer = (unsigned char *)malloc(length * sizeof(unsigned char));
+        *(buffer) = report_id;
         int result = hid_get_input_report(x->device, buffer, length);
         if(result >= 0){
-            t_atom argv[result];
+            t_atom * respond = (t_atom *)malloc(result * sizeof(t_atom));
             int i;
             for(i = 0; i < result; i++){
-                atom_setlong(argv + i, buffer[i]);
+                atom_setlong(respond + i, *(buffer + i));
             }
-            outlet_anything(x->outlet, gensym("get_input_report"), result, argv);
+            outlet_anything(x->outlet, gensym("get_input_report"), result, respond);
+            free(respond);
         }
         else{
-            t_atom argv;
-            atom_setlong(&argv, result);
-            outlet_anything(x->outlet, gensym("get_input_report"), 1, &argv);
+            t_atom respond;
+            atom_setlong(&respond, result);
+            outlet_anything(x->outlet, gensym("get_input_report"), 1, &respond);
         }
+        free(buffer);
     }
     else{
         post("Not connected");
@@ -535,4 +552,5 @@ void maxhidapi_info(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         cur_dev = cur_dev->next;
         ++i;
     }
+    hid_free_enumeration(devices);
 }
