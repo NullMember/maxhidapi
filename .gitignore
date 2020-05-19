@@ -56,6 +56,7 @@ libs/max/c74support
 
 # Builds
 externals/*
+Package/hidapi/externals/*
 
 # .vscode directory
 .vscode
