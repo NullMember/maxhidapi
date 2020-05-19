@@ -128,7 +128,8 @@ void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
         char * serial_number_c = atom_getsym(argv + 2)->s_name;
         size_t length = strlen(serial_number_c);
         wchar_t * serial_number_w = (wchar_t *)malloc((length + 1) * sizeof(wchar_t));
-        mbstowcs_s(NULL, serial_number_w, length+1, serial_number_c, length);
+        mbstowcs(serial_number_w, serial_number_c, length);
+        *(serial_number_w + length) = L'\0';
         x->device = hid_open(x->vendor_id, x->product_id, serial_number_w);
         free(serial_number_w);
     }
@@ -219,7 +220,8 @@ void maxhidapi_get_product_string(t_maxhidapi * x){
         size_t length = wcslen(product_string_w);
         char * product_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, product_string_c, length + 1, product_string_w, length);
+            wcstombs(product_string_c, product_string_w, length);
+            *(product_string_c + length) = '\0';
             t_atom product_string_a;
             atom_setsym(&product_string_a, gensym(product_string_c));
             outlet_anything(x->outlet, gensym("get_product_string"), 1, &product_string_a);
@@ -244,7 +246,8 @@ void maxhidapi_get_manufacturer_string(t_maxhidapi * x){
         size_t length = wcslen(manufacturer_string_w);
         char * manufacturer_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, manufacturer_string_c, length + 1, manufacturer_string_w, length);
+            wcstombs(manufacturer_string_c, manufacturer_string_w, length);
+            *(manufacturer_string_c + length) = '\0';
             t_atom manufacturer_string_a;
             atom_setsym(&manufacturer_string_a, gensym(manufacturer_string_c));
             outlet_anything(x->outlet, gensym("get_manufacturer_string"), 1, &manufacturer_string_a);
@@ -269,7 +272,8 @@ void maxhidapi_get_serial_number_string(t_maxhidapi * x){
         size_t length = wcslen(serial_number_string_w);
         char * serial_number_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, serial_number_string_c, length + 1, serial_number_string_w, length);
+            wcstombs(serial_number_string_c, serial_number_string_w, length);
+            *(serial_number_string_c + length) = '\0';
             t_atom serial_number_string_a;
             atom_setsym(&serial_number_string_a, gensym(serial_number_string_c));
             outlet_anything(x->outlet, gensym("get_serial_number_string"), 1, &serial_number_string_a);
@@ -294,7 +298,8 @@ void maxhidapi_get_indexed_string(t_maxhidapi * x, long index){
         size_t length = wcslen(indexed_string_w);
         char * indexed_string_c = (char *)malloc((length + 1) * sizeof(char));
         if(result == 0){
-            wcstombs_s(NULL, indexed_string_c, length + 1, indexed_string_w, length);
+            wcstombs(indexed_string_c, indexed_string_w, length);
+            *(indexed_string_c + length) = '\0';
             t_atom indexed_string_a;
             atom_setsym(&indexed_string_a, gensym(indexed_string_c));
             outlet_anything(x->outlet, gensym("get_indexed_string"), 1, &indexed_string_a);
@@ -323,7 +328,8 @@ void maxhidapi_error(t_maxhidapi * x){
         }
         int length = wcslen(error_w);
         char * error_c = (char *)malloc((length + 1) * sizeof(char));
-        wcstombs_s(NULL, error_c, length + 1, error_w, length);
+        wcstombs(error_c, error_w, length);
+        *(error_c + length) = '\0';
         t_atom error_a;
         atom_setsym(&error_a, gensym(error_c));
         outlet_anything(x->outlet, gensym("error"), 1, &error_a);
@@ -384,7 +390,8 @@ void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv
         else{
             length = wcslen(str_input);
             str_output = (char *)realloc(str_output, (length + 1) * sizeof(char));
-            wcstombs_s(NULL, str_output, length + 1, str_input, length);
+            wcstombs(str_output, str_input, length);
+            *(str_output + length) = '\0';
         }
         atom_setsym(respond + 3, gensym(str_output));
         // 5 manufacturer name
@@ -396,7 +403,8 @@ void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv
         else{
             length = wcslen(str_input);
             str_output = (char *)realloc(str_output, (length + 1) * sizeof(char));
-            wcstombs_s(NULL, str_output, length + 1, str_input, length);
+            wcstombs(str_output, str_input, length);
+            *(str_output + length) = '\0';
         }
         atom_setsym(respond + 4, gensym(str_output));
         // 6 product name
@@ -408,7 +416,8 @@ void maxhidapi_enumerate(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv
         else{
             length = wcslen(str_input);
             str_output = (char *)realloc(str_output, (length + 1) * sizeof(char));
-            wcstombs_s(NULL, str_output, length + 1, str_input, length);
+            wcstombs(str_output, str_input, length);
+            *(str_output + length) = '\0';
         }
         atom_setsym(respond + 5, gensym(str_output));
         // 7 release number
