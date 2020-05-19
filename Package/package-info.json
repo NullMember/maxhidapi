@@ -28,6 +28,6 @@
 	"filelist" : 	{
 		"externals" : [ "hidapi.mxe", "hidapi.mxe64", "hidapi.mxo" ],
 		"help" : [ "hidapi.maxhelp" ],
-		"docs" : [ "docs/refpages/hidapi.xml" ]
+		"docs" : [ "refpages/hidapi.maxref.xml" ]
 	}
 }
