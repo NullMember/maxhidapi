@@ -48,7 +48,8 @@
 				Open hid device
 			</digest>
 			<description>
-				Open hid device using [open index] or [open vendor-id product-id] or [open vendor-id product-id serial-number].
+				Usage: [open index] or [open vendor-id product-id] or [open vendor-id product-id serial-number].
+				Open hid device.
 				Send enumerate before using index.
 				If already opened this method will close previously opened device first.
 				Nonblocking will set to 1 as soon as device opened.
@@ -65,6 +66,7 @@
 				Write data to hid device
 			</digest>
 			<description>
+				Usage: [write length report-id arguments..].
 				Write data to hid device. length and report-id are mandatory but arguments are optional.
 				If size of arguments are not same as length hidapi appends 0 to data written.
 				Returns actual number of bytes written or -1 on error.
@@ -79,6 +81,7 @@
 				Read data from hid device
 			</digest>
 			<description>
+				Usage: [read length report-id].
 				Read data from hid device. length and report-id are mandatory.
 				If actual number of bytes read from device is not same as length, returned data length is same as length argument.
 				Returns actual number of bytes read and data returned from device or -1 on error.
@@ -89,6 +92,7 @@
 				Close previously opened hid device
 			</digest>
 			<description>
+				Usage: [close].
 				Close previously opened hid device.
 				Returns 0.
 			</description>
@@ -98,6 +102,7 @@
 				Get product string
 			</digest>
 			<description>
+				Usage: [get_product_string].
 				Returns product string as symbol or -1 on error.
 			</description>
 		</method>
@@ -106,6 +111,7 @@
 				Get manufacturer string
 			</digest>
 			<description>
+				Usage: [get_manufacturer_string].
 				Returns manufacturer string as symbol or -1 on error
 			</description>
 		</method>
@@ -114,6 +120,7 @@
 				Get serial number string
 			</digest>
 			<description>
+				Usage: [get_serial_number_string].
 				Returns serial number string as symbol or -1 on error
 			</description>
 		</method>
@@ -125,6 +132,7 @@
 				Get indexed string
 			</digest>
 			<description>
+				Usage: [get_indexed_string index].
 				Returns indexed string as symbol or -1 on error
 			</description>
 		</method>
@@ -133,6 +141,7 @@
 				Get error
 			</digest>
 			<description>
+				Usage: [error].
 				Returns last generated error as symbol or -1 if no error generated
 			</description>
 		</method>
@@ -144,6 +153,7 @@
 				Set nonblocking
 			</digest>
 			<description>
+				Usage: [set_nonblocking nonblocking].
 				Set nonblocking. nonblocking is mandatory. 
 				Please keep in mind, writing 0 to nonblocking could crash Max.
 				Returns 0 or -1 on error.
@@ -154,6 +164,7 @@
 				Enumerate devices
 			</digest>
 			<description>
+				Usage: [enumerate].
 				Enumerate devices.
 				Returns index vendor_id product_id serial_number manufacturer_string product_string
 				release_number page usage_page path.
@@ -168,6 +179,7 @@
 				Open device using os specific path
 			</digest>
 			<description>
+				Usage: [open_path path].
 				Open device using os specific path. path is mandatory.
 				You can get this path using enumerate method.
 				Returns 0 or -1 on error.
@@ -183,6 +195,7 @@
 				Send feature report to hid device
 			</digest>
 			<description>
+				Usage: [send_feature_report length report-id arguments..].
 				Send feature report to hid device. length and report-id are mandatory but arguments are optional.
 				If size of arguments are not same as length hidapi appends 0 to data written.
 				Returns actual number of bytes written or -1 on error.
@@ -197,6 +210,7 @@
 				Get feature report from hid device
 			</digest>
 			<description>
+				Usage: [get_feature_report length report-id].
 				Get feature report from hid device. length and report-id are mandatory.
 				Returns actual number of bytes read and data returned from device or -1 on error.
 			</description>
@@ -210,6 +224,7 @@
 				Get input report from hid device
 			</digest>
 			<description>
+				Usage: [get_input_report length report-id].
 				Get input report from hid device. length and report-id are mandatory.
 				Returns actual number of bytes read and data returned from device or -1 on error.
 			</description>
@@ -219,6 +234,7 @@
 				Print devices info to console
 			</digest>
 			<description>
+				Usage: [info].
 				Prints all connected devices info to console
 			</description>
 		</method>
