@@ -17,6 +17,11 @@
 #include "ext.h"
 #include "ext_obex.h"
 
+#ifdef MAC_VERSION
+#define __FILES__
+#include <Carbon/Carbon.h>
+#endif // MAC_VERSION
+
 typedef struct _maxhidapi
 {
     t_object s_obj;     // t_object header
