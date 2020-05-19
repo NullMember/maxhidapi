@@ -1,3 +1,13 @@
+/**
+ * 
+ *  maxhidapi Max wrapper for the hidapi.
+ *  Author: Malik Enes Safak
+ *   Email: e.maliksafak@gmail.com
+ *     Web: https://www.github.com/NullMember
+ * License: MIT
+ * 
+ */
+
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
@@ -305,6 +315,12 @@ void maxhidapi_get_indexed_string(t_maxhidapi * x, long index){
 void maxhidapi_error(t_maxhidapi * x){
     if(x->device != NULL){
         const wchar_t * error_w = hid_error(x->device);
+        if(error_w == NULL){
+            t_atom respond;
+            atom_setlong(&respond, -1);
+            outlet_anything(x->outlet, gensym("error"), 1, &respond);
+            return;
+        }
         int length = wcslen(error_w);
         char * error_c = (char *)malloc((length + 1) * sizeof(char));
         wcstombs_s(NULL, error_c, length + 1, error_w, length);
@@ -445,12 +461,9 @@ void maxhidapi_open_path(t_maxhidapi * x, t_symbol * s){
         }
         else{
             maxhidapi_set_nonblocking(x, 1);
-            t_atom * respond = (t_atom *)malloc(3 * sizeof(t_atom));
-            atom_setlong(respond, 0);
-            atom_setlong(respond + 1, x->vendor_id);
-            atom_setlong(respond + 2, x->product_id);
-            outlet_anything(x->outlet, gensym("open_path"), 3, respond);
-            free(respond);
+            t_atom respond;
+            atom_setlong(&respond, 0);
+            outlet_anything(x->outlet, gensym("open_path"), 3, &respond);
         }
     }
 }

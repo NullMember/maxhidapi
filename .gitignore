@@ -55,7 +55,7 @@ dkms.conf
 libs/max/c74support
 
 # Builds
-build/*
+externals/*
 
 # .vscode directory
 .vscode
