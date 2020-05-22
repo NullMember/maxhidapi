@@ -1,4 +1,4 @@
-# max-hidapi
+# maxhidapi
 Cycling '74 Max wrapper for the hidapi
 
 # What is this?
