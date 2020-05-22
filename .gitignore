@@ -55,7 +55,9 @@ dkms.conf
 libs/max/c74support
 
 # Builds
-externals/*
+externals/*.mxe
+externals/*.mxe64
+externals/hidapi.mxo/*
 Package/hidapi/externals/*
 
 # .vscode directory
