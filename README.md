@@ -23,5 +23,5 @@ On Windows machines I've used mingw but cygwin should work too. Either clang or 
 On MacOS machines you can install either Xcode or Command Line Tools for Xcode. Check Makefile to used options for clang. Don't forget to change "cc" to "clang" and put c74support from max sdk into libs/max folder.  
 Note: You need to manually edit "ext_path.h" file in libs/max/c74support/max-includes folder. Find "#include <Files.h>" line and replace it by "#include <Carbon/Carbon.h>". I cannot figure out how to automate it (damn!).
 
-# Use package
+# Using package
 First copy externals folder into Package/hidapi folder then copy Package/hidapi folder to any of the Max search paths. By default you can use Documents/Max 7 (or 8)/Packages folder.
