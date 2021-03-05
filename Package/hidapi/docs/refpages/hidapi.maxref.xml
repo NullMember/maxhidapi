@@ -75,14 +75,13 @@
 		<method name="read">
 			<arglist>
 				<arg name="length" optional="0" id="0" type="int" />
-				<arg name="report-id" optional="0" id="1" type="int" />
 			</arglist>
 			<digest>
 				Read data from hid device
 			</digest>
 			<description>
-				Usage: [read length report-id].
-				Read data from hid device. length and report-id are mandatory.
+				Usage: [read length].
+				Read data from hid device. length is mandatory.
 				If actual number of bytes read from device is not same as length, returned data length is same as length argument.
 				Returns actual number of bytes read and data returned from device or -1 on error.
 			</description>

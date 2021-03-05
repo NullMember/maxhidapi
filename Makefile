@@ -6,7 +6,7 @@ OSXCMD := cc -std=c99 -arch i386 -arch x86_64 -shared src/maxhidapi.c libs/hidap
 
 WIN32OPTIONS := -it --rm -v $(CURDIR):/workspace -w /workspace -e CROSS_TRIPLE=win32 multiarch/crossbuild:dev
 WIN32CMD := cc -shared src/maxhidapi.c libs/hidapi/windows/hid.c -DWIN_VERSION -DWIN_EXT_VERSION \
--I libs/max/c74support/max-includes -I libs/max/c74support/max-includes/x64 -I libs/hidapi/hidapi \
+-I libs/max/c74support/max-includes -I libs/max/c74support/max-includes -I libs/hidapi/hidapi \
 -L libs/max/c74support/max-includes -l MaxAPI -l setupapi -o externals/hidapi.mxe
 
 WIN64OPTIONS := -it --rm -v $(CURDIR):/workspace -w /workspace -e CROSS_TRIPLE=win64 multiarch/crossbuild:dev
@@ -17,6 +17,6 @@ WIN64CMD := cc -shared src/maxhidapi.c libs/hidapi/windows/hid.c -DWIN_VERSION -
 all: build
 
 build:
-	docker run $(OSXOPTIONS) $(OSXCMD)
+#	docker run $(OSXOPTIONS) $(OSXCMD)
 	docker run $(WIN32OPTIONS) $(WIN32CMD)
 	docker run $(WIN64OPTIONS) $(WIN64CMD)

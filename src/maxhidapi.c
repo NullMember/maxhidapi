@@ -32,7 +32,7 @@ static t_class * s_maxhidapi_class;
 //function prototypes
 void maxhidapi_open(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv);
 void maxhidapi_write(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv);
-void maxhidapi_read(t_maxhidapi * x, long length, long report_id);
+void maxhidapi_read(t_maxhidapi * x, long length);
 void maxhidapi_close(t_maxhidapi * x);
 void maxhidapi_get_product_string(t_maxhidapi * x);
 void maxhidapi_get_manufacturer_string(t_maxhidapi * x);
@@ -72,7 +72,7 @@ void ext_main(void * r){
     c = class_new("hidapi", (method)maxhidapi_new, (method)maxhidapi_free, sizeof(t_maxhidapi), NULL, 0);
     class_addmethod(c, (method)maxhidapi_open, "open", A_GIMME, 0);
     class_addmethod(c, (method)maxhidapi_write, "write", A_GIMME, 0);
-    class_addmethod(c, (method)maxhidapi_read, "read", A_LONG, A_LONG, 0);
+    class_addmethod(c, (method)maxhidapi_read, "read", A_LONG, 0);
     class_addmethod(c, (method)maxhidapi_close, "close", 0);
     class_addmethod(c, (method)maxhidapi_get_product_string, "get_product_string", 0);
     class_addmethod(c, (method)maxhidapi_get_manufacturer_string, "get_manufacturer_string", 0);
@@ -173,20 +173,18 @@ void maxhidapi_write(t_maxhidapi * x, t_symbol * s, long argc, t_atom * argv){
     }
 }
 
-void maxhidapi_read(t_maxhidapi * x, long length, long report_id){
+void maxhidapi_read(t_maxhidapi * x, long length){
     if(x->device != NULL){
         unsigned char * buffer = (unsigned char *)malloc(length * sizeof(unsigned char));
-        if(report_id >= 0){
-            * (buffer) = report_id;
-        }
         int result = hid_read(x->device, buffer, length);
         if(result >= 0){
-            t_atom * read_buffer = (t_atom *)malloc(length * sizeof(t_atom));
+            t_atom * read_buffer = (t_atom *)malloc(length + 1 * sizeof(t_atom));
             int i;
-            for(i = 0; i < length; i++){
-                atom_setlong(read_buffer + i, *(buffer + i));
+            atom_setlong(read_buffer, result);
+            for(i = 1; i < length + 1; i++){
+                atom_setlong(read_buffer + i, *(buffer + i - 1));
             }
-            outlet_anything(x->outlet, gensym("read"), result, read_buffer);
+            outlet_anything(x->outlet, gensym("read"), length + 1, read_buffer);
             free(read_buffer);
         }
         else{
