@@ -17,6 +17,6 @@ WIN64CMD := cc -shared src/maxhidapi.c libs/hidapi/windows/hid.c -DWIN_VERSION -
 all: build
 
 build:
-#	docker run $(OSXOPTIONS) $(OSXCMD)
+	docker run $(OSXOPTIONS) $(OSXCMD)
 	docker run $(WIN32OPTIONS) $(WIN32CMD)
 	docker run $(WIN64OPTIONS) $(WIN64CMD)
