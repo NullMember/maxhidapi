@@ -4,3 +4,9 @@
 [submodule "libs/max-sdk-base"]
 	path = libs/max-sdk-base
 	url = https://github.com/Cycling74/max-sdk-base
+[submodule "libs/max-sdk"]
+	path = libs/max-sdk
+	url = https://github.com/Cycling74/max-sdk
+[submodule "libs/--force"]
+	path = libs/--force
+	url = https://github.com/Cycling74/max-sdk-base
