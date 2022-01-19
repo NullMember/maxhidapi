@@ -10,10 +10,12 @@ set(MAXHIDAPI_HIDAPI_SUBMODULE_DIR "${MAXHIDAPI_LIB_DIR}/hidapi")
 set(MAXHIDAPI_MAX_BASE_DIR "${MAXHIDAPI_LIB_DIR}/max-sdk-base")
 set(MAXHIDAPI_C74_SUPPORT_DIR "${MAXHIDAPI_MAX_BASE_DIR}/c74support")
 
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+
 set(BUILD_SHARED_LIBS OFF)
 
 include("${MAXHIDAPI_MAX_BASE_DIR}/script/max-pretarget.cmake")
-add_subdirectory("${MAXHIDAPI_HIDAPI_SUBMODULE_DIR}")
+add_subdirectory("${MAXHIDAPI_HIDAPI_SUBMODULE_DIR}" EXCLUDE_FROM_ALL)
 
 add_library(maxhidapi SHARED "${MAXHIDAPI_SRC_DIR}/maxhidapi.c")
 
@@ -21,11 +23,15 @@ target_include_directories(maxhidapi PRIVATE
                         "${MAXHIDAPI_HIDAPI_SUBMODULE_DIR}/hidapi" 
                         "${MAXHIDAPI_C74_SUPPORT_DIR}"
                         "${MAXHIDAPI_C74_SUPPORT_DIR}/max-includes")
-target_link_directories(maxhidapi PRIVATE 
-                        "${MAXHIDAPI_C74_SUPPORT_DIR}/max-includes"
-                        "${MAXHIDAPI_C74_SUPPORT_DIR}/max-includes/x64")
-target_link_libraries(maxhidapi PRIVATE hidapi MaxAPI)
 
+find_library(MAX_API MaxAPI PATHS "${MAXHIDAPI_C74_SUPPORT_DIR}/max-includes" "${MAXHIDAPI_C74_SUPPORT_DIR}/max-includes/x64")
+if(NOT MAX_API)
+    message(FATAL_ERROR "MaxAPI not found")
+endif(NOT MAX_API)
+
+target_link_libraries(maxhidapi PRIVATE hidapi ${MAX_API})
+
+set_target_properties(maxhidapi PROPERTIES PREFIX "")
 set_target_properties(maxhidapi PROPERTIES OUTPUT_NAME "hidapi")
 
 if(APPLE)

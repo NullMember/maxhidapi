@@ -65,3 +65,6 @@ Package/hidapi/externals/*
 
 # cmake directories
 build
+
+# mac
+.DS_Store
